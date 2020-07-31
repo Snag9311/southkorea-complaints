@@ -3,7 +3,6 @@
 # URL slicing
 urls = pd.read_csv('regions_202006261329#3.csv', encoding='CP949')
 urls.dropna(axis=0, subset=['url'], inplace=True)
-urls = urls[urls['belongs_to'] == '부산광역시']
 
 # collect
 for idx, row in urls.iterrows():
@@ -41,7 +40,7 @@ for idx, row in urls.iterrows():
         for i in range(posts_num):
 
             try:  # click() a post
-                xpath = '/html/body/main/div/form/div[1]/div[4]/table/tbody/tr[{}]/td[2]/a'
+                xpath = '//*[@id="dataSetTb"]/table/tbody/tr[1]/td[2]/a'
                 driver.find_element_by_xpath(xpath.format(i+1)).click()
                 driver.implicitly_wait(1)
 
@@ -103,6 +102,8 @@ for idx, row in urls.iterrows():
             post_num = len(soup3.find('tbody').find_all('tr'))  # 여기서 soup3.find('tbody') => None 뜨는 에러 났었음
 
             answer_status_list = [ans_status.get_text().strip() for ans_status in soup3.find_all('td', {'class':'td-answer'})]
+            submit_ans_nums = np.where(np.isin(np.array(answer_status_list), ['접수']))[0].tolist()
+            processing_ans_nums = np.where(np.isin(np.array(answer_status_list), ['처리중']))[0].tolist()
             trans_ans_nums = np.where(np.isin(np.array(answer_status_list), ['이송이첩']))[0].tolist()
             multi_ans_nums = np.where(np.isin(np.array(answer_status_list), ['다부처병렬']))[0].tolist()
     
