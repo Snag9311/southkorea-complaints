@@ -128,19 +128,20 @@ for idx, row in tqdm(urls.iterrows(), total=urls.shape[0]):
             if i in submit_ans_nums+processing_ans_nums:
                 continue
             
-            # idk
-            try:
-                xpath = '//*[@id="dataSetTb"]/table/tbody/tr[{}]/td[4]'
-                year = int(driver.find_element_by_xpath(xpath.format(i+1)).text.strip()[:4])
-                if year < 2019:
-                    break
-                else:
-                    pass
-            except:
-                print('something wrong')
-                driver.back()
-                driver.implicitly_wait(1)
-                continue
+            if re.search('목록조회', page_title):
+                # idk
+                try:
+                    xpath = '//*[@id="dataSetTb"]/table/tbody/tr[{}]/td[4]'
+                    year = int(driver.find_element_by_xpath(xpath.format(i+1)).text.strip()[:4])
+                    if year < 2019:
+                        break
+                    else:
+                        pass
+                except: # assume page is on 상세목록 if error above
+                    print('something wrong')
+                    driver.back()
+                    driver.implicitly_wait(1)
+                    continue
             
             # click() a post #
             try:
@@ -247,9 +248,8 @@ for idx, row in tqdm(urls.iterrows(), total=urls.shape[0]):
                 title = soup2.find_all('table')[0].find_all('td')[1].get_text().strip()
                 print('<Weird Post>', 'page:', _+1, 'post:', i+1, 'title:', title)
             
-            print('back!')
             t = 0
-            while re.search('목록조회', driver.title):
+            while not re.search('목록조회', driver.title):
                 t += 1
                 driver.back()  # back() to post list page
                 driver.implicitly_wait(2)
